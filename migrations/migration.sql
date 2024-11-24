@@ -1,3 +1,4 @@
+
 -- Create users table
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,12 +13,14 @@ CREATE TABLE users (
 -- Create events table
 CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER NOT NULL,
     title TEXT NOT NULL,
     description TEXT NULL,
     location TEXT NULL,
     deadline TEXT NULL,
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),
-    updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Create available dates table
@@ -25,10 +28,12 @@ CREATE TABLE available_dates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_id INTEGER NOT NULL,
     date TEXT NOT NULL,
+    time TEXT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
+
 
 -- Create responses table
 CREATE TABLE responses (

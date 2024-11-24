@@ -14,32 +14,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Textarea } from "./ui/textarea";
-import { useState } from "react";
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  description: z.string().optional(),
-  location: z.string().optional(),
-  dates: z.array(z.date()).min(1, {
-    message: "Please select at least one date.",
-  }),
-});
+import { format } from "date-fns";
+import { useState, useEffect } from "react";
+import { EventRequest, eventRequestSchema } from "@/schemas/event";
+import { Textarea } from "./ui/textarea";
+import { TimePicker } from "@/components/ui/time-picker";
+import { X } from "lucide-react";
+import { createEvent } from "@/app/events/actions";
+import { useToast } from "@/hooks/use-toast";
+
 
 export function CreateEventForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<EventRequest>({
+    resolver: zodResolver(eventRequestSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -48,106 +37,252 @@ export function CreateEventForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const { toast } = useToast();
+
+  const [selectedDates, setSelectedDates] = useState<Array<{ date: Date; time: string }>>([]);
+
+  useEffect(() => {
+    const formattedDates = selectedDates.map(({ date, time }) => ({
+      date,
+      time,
+    }));
+    form.setValue("dates", formattedDates);
+  }, [selectedDates, form]);
+
+  const handleDateSelect = (date: Date) => {
+    const dateString = date.toDateString();
+    setSelectedDates(prev => {
+      const existingIndex = prev.findIndex(d => d.date.toDateString() === dateString);
+      if (existingIndex >= 0) {
+        // Remove the date if it exists
+        return prev.filter((_, i) => i !== existingIndex);
+      }
+      // Add the date if it doesn't exist
+      return [...prev, { date, time: "19:00" }];
+    });
+  };
+
+  const handleCalendarSelect = (dates: Date[] | undefined) => {
+    if (!dates) {
+      setSelectedDates([]);
+      return;
+    }
+
+    const newDateStrings = new Set(dates.map(d => d.toDateString()));
+    const currentDateStrings = new Set(selectedDates.map(d => d.date.toDateString()));
+
+    // Find dates that were toggled
+    for (const date of dates) {
+      const dateString = date.toDateString();
+      if (!currentDateStrings.has(dateString)) {
+        handleDateSelect(date);
+        return;
+      }
+    }
+
+    for (const { date } of selectedDates) {
+      const dateString = date.toDateString();
+      if (!newDateStrings.has(dateString)) {
+        handleDateSelect(date);
+        return;
+      }
+    }
+  };
+
+  const handleTimeChange = (dateIndex: number, newTime: string) => {
+    const newDates = [...selectedDates];
+    newDates[dateIndex].time = newTime;
+    setSelectedDates(newDates);
+  };
+
+  const removeDate = (dateIndex: number) => {
+    setSelectedDates(selectedDates.filter((_, i) => i !== dateIndex));
+  };
+
+  const onSubmit = async (data: EventRequest) => {
     setIsSubmitting(true);
     try {
-      // TODO: Implement API call to create event
-      console.log(values);
+      
+
+      const response = await createEvent(data);
+      
+      if (!response.success) {
+        response.errors?.forEach((error) => {
+          // if validation error, show error message to each field
+          
+
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Event created successfully!",
+      });
+
+      // Reset form
+      form.reset();
+      setSelectedDates([]);
     } catch (error) {
-      console.error(error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Event title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="lg:grid lg:grid-cols-[1fr,420px] gap-6">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Event title" {...field} className="max-w-md" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Add event details..."
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Event location" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="dates"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Select Dates</FormLabel>
-              <FormControl>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value?.length > 0
-                        ? `${field.value.length} dates selected`
-                        : "Select dates"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="multiple"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Add event details..."
+                      className="max-w-md h-[120px]"
+                      {...field}
                     />
-                  </PopoverContent>
-                </Popover>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Event location" {...field} className="max-w-md" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="lg:mt-0 mt-4">
+            <FormField
+              control={form.control}
+              name="dates"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Dates and Times</FormLabel>
+                  <FormControl>
+                    <div className="rounded-lg border bg-card">
+                      <div className="p-3">
+                        <div className="flex justify-center pb-3">
+                          <Calendar
+                            mode="multiple"
+                            selected={selectedDates.map((d) => d.date)}
+                            onSelect={handleCalendarSelect}
+                            disabled={(date) => date < new Date()}
+                            className="select-none"
+                            classNames={{
+                              months: "flex flex-col sm:flex-row space-y-3 sm:space-x-4 sm:space-y-0",
+                              month: "space-y-3",
+                              caption: "flex justify-center pt-1 relative items-center",
+                              caption_label: "text-sm font-medium",
+                              nav: "space-x-1 flex items-center",
+                              nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                              nav_button_previous: "absolute left-1",
+                              nav_button_next: "absolute right-1",
+                              table: "w-full border-collapse space-y-1",
+                              head_row: "flex justify-between",
+                              head_cell: "text-muted-foreground font-normal text-xs w-8",
+                              row: "flex w-full mt-1",
+                              cell: "h-8 w-8 text-center text-sm relative p-0 [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                              day: "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                              day_selected: "bg-[#00B900] text-primary-foreground hover:bg-[#00B900] hover:text-primary-foreground focus:bg-[#00B900] focus:text-primary-foreground",
+                              day_today: "bg-accent text-accent-foreground",
+                              day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                              day_disabled: "text-muted-foreground opacity-50",
+                              day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                              day_hidden: "invisible",
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium">Selected Dates</div>
+                            <div className="text-xs text-muted-foreground">
+                              {selectedDates.length} {selectedDates.length === 1 ? 'date' : 'dates'} selected
+                            </div>
+                          </div>
+                          <div className="relative">
+                            {selectedDates.length === 0 ? (
+                              <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-2">
+                                No dates selected
+                              </div>
+                            ) : (
+                              <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
+                                {selectedDates.map((dateObj, dateIndex) => (
+                                  <div
+                                    key={dateObj.date.toISOString()}
+                                    className="flex items-center justify-between gap-2 rounded-lg bg-muted/50 p-1.5 pr-1"
+                                  >
+                                    <div className="font-medium text-sm">
+                                      {format(dateObj.date, "MMM d (EEE)")}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <TimePicker
+                                        value={dateObj.time}
+                                        onChange={(newTime) => handleTimeChange(dateIndex, newTime)}
+                                      />
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 hover:bg-destructive hover:text-destructive-foreground"
+                                        onClick={() => removeDate(dateIndex)}
+                                      >
+                                        <X className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
         <Button 
           type="submit" 
-          className="w-full bg-[#00B900] hover:bg-[#009900]"
+          className="w-full max-w-md bg-[#00B900] hover:bg-[#009900]"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Creating..." : "Create Event"}
