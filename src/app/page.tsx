@@ -3,15 +3,26 @@
 import { CreateEventForm } from '@/components/create-event-form';
 import { EventList } from '@/components/event-list';
 import { tursoClient } from '@/lib/database';
+import { Event } from '@/schemas/event';
 import { CalendarDays } from 'lucide-react';
 
 export default async function Home() {
-  const events = await tursoClient().execute({
-
-    sql: `SELECT * FROM events ORDER BY created_at DESC WHERE userId = ?`,
+  const query = await tursoClient().execute({
+    sql: `SELECT * FROM events ORDER BY createdAt DESC`,
     args: [],
   });
-  console.log("🚀 ~ file: page.tsx:10 ~ events:", events)
+
+  const events: Event[] = query.rows.map((row) => ({
+    id: row.id as number,
+    title: row.title as string,
+    description: row.description as string,
+    location: row.location as string,
+    deadline: row.deadline ? new Date(row.deadline as string) : undefined,
+    createdAt: new Date(row.createdAt as string),
+    updatedAt: new Date(row.updatedAt as string),
+    availableDates: [],
+  }));
+
   return (
     <main className="container mx-auto px-4 py-6">
       <div className="flex items-center justify-center mb-8 space-x-2">
@@ -27,7 +38,7 @@ export default async function Home() {
         
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">Your Events</h2>
-          <EventList />
+          <EventList events={events} />
         </div>
       </div>
     </main>

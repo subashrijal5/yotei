@@ -24,7 +24,7 @@ CREATE TABLE events (
 );
 
 -- Create available dates table
-CREATE TABLE available_dates (
+CREATE TABLE availableDates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_id INTEGER NOT NULL,
     date TEXT NOT NULL,
@@ -47,6 +47,6 @@ CREATE TABLE responses (
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-    FOREIGN KEY (available_date_id) REFERENCES available_dates(id) ON DELETE CASCADE,
+    FOREIGN KEY (available_date_id) REFERENCES availableDates(id) ON DELETE CASCADE,
     UNIQUE (user_id, event_id, available_date_id)
 );

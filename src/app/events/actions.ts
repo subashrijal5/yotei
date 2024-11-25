@@ -1,22 +1,13 @@
 "use server"
 
 import { tursoClient } from "@/lib/database";
+import {  Response } from "@/lib/type";
 import { Event, EventRequest, eventRequestSchema } from "@/schemas/event";
 
-type ErrorResponse = {
-    success: false;
-    message: string;
-    errors: string[];
-}
 
-type SuccessResponse = {
-    success: true;
-    message: string;
-    data: Event;
-}
-export type Response = ErrorResponse | SuccessResponse
 
-export async function createEvent(requestData: EventRequest): Promise<Response> {
+
+export async function createEvent(requestData: EventRequest): Promise<Response<Event>> {
 
     try {
         const safeResult = await eventRequestSchema.parseAsync(requestData);
@@ -34,7 +25,7 @@ export async function createEvent(requestData: EventRequest): Promise<Response> 
         await Promise.all(
             safeResult.dates.map(async (date) => {
                 await tursoClient().execute({
-                    sql: `INSERT INTO available_dates (date, time, event_id) 
+                    sql: `INSERT INTO availableDates (date, time, eventId) 
                     VALUES (?, ?, ?)`,
                     args: [date.date.toISOString(), date.time, eventId]
                 });
