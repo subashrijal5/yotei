@@ -1,10 +1,17 @@
-"use client";
+
 
 import { CreateEventForm } from '@/components/create-event-form';
 import { EventList } from '@/components/event-list';
+import { tursoClient } from '@/lib/database';
 import { CalendarDays } from 'lucide-react';
 
-export default function Home() {
+export default async function Home() {
+  const events = await tursoClient().execute({
+
+    sql: `SELECT * FROM events ORDER BY created_at DESC WHERE userId = ?`,
+    args: [],
+  });
+  console.log("🚀 ~ file: page.tsx:10 ~ events:", events)
   return (
     <main className="container mx-auto px-4 py-6">
       <div className="flex items-center justify-center mb-8 space-x-2">

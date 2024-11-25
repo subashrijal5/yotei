@@ -24,16 +24,17 @@ export async function createEvent(requestData: EventRequest): Promise<Response> 
         // save in db
         const result = await tursoClient().execute({
             sql: `INSERT INTO events (title, description, location) 
-            VALUES (?, ?, ?)`,
-            args: [safeResult.title, safeResult.description!, safeResult.location!]
+            VALUES (?, ?, ?) RETURNING id`,
+            args: [safeResult.title, safeResult.description!, safeResult.location!],
+            
         });
-
+        
         const eventId = result.rows[0].id;
-
+  
         await Promise.all(
             safeResult.dates.map(async (date) => {
                 await tursoClient().execute({
-                    sql: `INSERT INTO event_available_dates (date, time, event_id) 
+                    sql: `INSERT INTO available_dates (date, time, event_id) 
                     VALUES (?, ?, ?)`,
                     args: [date.date.toISOString(), date.time, eventId]
                 });
@@ -48,6 +49,7 @@ export async function createEvent(requestData: EventRequest): Promise<Response> 
                 id: eventId as number,
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                userId: safeResult.userId,
                 availableDates: []
             },
         };
