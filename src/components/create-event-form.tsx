@@ -21,7 +21,7 @@ import { EventRequest, eventRequestSchema } from "@/schemas/event";
 import { Textarea } from "./ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { X } from "lucide-react";
-import { createEvent } from "@/app/events/actions";
+import { createEvent } from "@/app/[locale]/events/actions";
 import { useToast } from "@/hooks/use-toast";
 
 

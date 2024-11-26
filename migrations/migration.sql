@@ -5,7 +5,7 @@ CREATE TABLE users (
     lineId TEXT NULL,
     displayName TEXT NOT NULL,
     email TEXT NULL,
-    pictureUrl TEXT NOT NULL,
+    pictureUrl TEXT  NULL,
     createdAt TEXT NOT NULL DEFAULT (datetime('now')),
     updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -13,7 +13,7 @@ CREATE TABLE users (
 -- Create events table
 CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId INTEGER NOT NULL,
+    userId INTEGER NULL,
     title TEXT NOT NULL,
     description TEXT NULL,
     location TEXT NULL,
@@ -26,27 +26,28 @@ CREATE TABLE events (
 -- Create available dates table
 CREATE TABLE availableDates (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event_id INTEGER NOT NULL,
+    eventId INTEGER NOT NULL,
     date TEXT NOT NULL,
     time TEXT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (eventId) REFERENCES events(id) ON DELETE CASCADE
 );
 
 
 -- Create responses table
 CREATE TABLE responses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NULL,
-    display_name TEXT NOT NULL,
-    event_id INTEGER NOT NULL,
-    available_date_id INTEGER NOT NULL,
+    userId INTEGER NULL,
+    displayName TEXT NOT NULL,
+    eventId INTEGER NOT NULL,
+    availableDateId INTEGER NOT NULL,
     status TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-    FOREIGN KEY (available_date_id) REFERENCES availableDates(id) ON DELETE CASCADE,
-    UNIQUE (user_id, event_id, available_date_id)
+    createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+    updatedAt TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (eventId) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (availableDateId) REFERENCES availableDates(id) ON DELETE CASCADE,
+    UNIQUE (userId, eventId, availableDateId)
 );
+

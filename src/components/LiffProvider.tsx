@@ -26,6 +26,7 @@ export function LiffProvider({ children }: { children: React.ReactNode }) {
             liff
               .init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID! })
               .then(() => {
+                liff.login();
                 console.log("LIFF init succeeded.");
                 setLiffObject(liff);
               })

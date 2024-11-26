@@ -5,73 +5,76 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Share2, Users, Check, X, CircleHelp } from "lucide-react";
 import { AvailabilityForm } from "@/components/availability-form";
-import { EventStatus } from "@/schemas/event";
+import { Event,  EventStatus } from "@/schemas/event";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { saveAvailability } from "@/app/events/[id]/actions";
-
-type EventResponse = {
-  id: number;
-  name: string;
-  availableDates: {
-    date: Date;
-    status: EventStatus;
-  }[];
-};
-
-type EventDetails = {
-  id: number;
-  title: string;
-  description: string;
-  location: string;
-  dates: Date[];
-  responses: EventResponse[];
-};
+import { saveAvailability } from "@/app/[locale]/events/[id]/actions";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
-  event: EventDetails;
+  event: Event;
 };
 
 export function EventDetail({ event }: Props) {
   const [showAvailabilityForm, setShowAvailabilityForm] = useState(false);
+  const { toast } = useToast();
+
+   const availableDates = event.availableDates;
 
   const handleShare = async () => {
     try {
-      await navigator.share({
-        title: event.title,
-        text: "Please check your availability for this event!",
-        url: window.location.href,
+      await navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copied!",
+        description: "Share this link with your friends to get their availability.",
       });
     } catch (error) {
-      console.error("Error sharing:", error);
+      toast({
+        title: "Failed to copy link",
+        description: "Please try again or copy the URL manually.",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleSubmitAvailability = async (responses: { date: Date; status: EventStatus }[]) => {
+  const handleSubmitAvailability = async (
+    availabilityResponses: { date: Date; time: string; status: EventStatus }[],
+    displayName: string
+  ) => {
     try {
       // TODO: Get actual userId from auth
-      const userId = 1; // Temporary userId for testing
+      const userId = 2;
+
+    
+      // Close form immediately for better UX
+      setShowAvailabilityForm(false);
 
       const result = await saveAvailability({
         eventId: event.id,
         userId,
-        responses: responses.map(r => ({
-          date: r.date,
-          status: r.status,
-        })),
+        displayName,
+        responses: availabilityResponses,
       });
 
       if (result.success) {
-        // TODO: Add toast notification
-        console.log("Availability saved successfully");
-        setShowAvailabilityForm(false);
-        // TODO: Refresh the page to show updated responses
-        window.location.reload();
+        toast({
+          title: "Availability saved!",
+          description: "Your response has been recorded.",
+        });
       } else {
-        // TODO: Add error toast notification
-        console.error("Failed to save availability:", result.message);
+
+        toast({
+          title: "Failed to save availability",
+          description: result.message,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error submitting availability:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -85,6 +88,18 @@ export function EventDetail({ event }: Props) {
         return <CircleHelp className="h-4 w-4 text-yellow-500" />;
     }
   };
+
+
+  const uniqueUsers = new Map<string, { dateId: number; displayName: string }>();
+  availableDates.forEach((date) => {
+    date.responses.forEach((response) => {
+      uniqueUsers.set(response.displayName, {
+        dateId: response.availableDateId,
+        displayName: response.displayName,
+      });
+    });
+  });
+  const uniqueUsersArray = Array.from(uniqueUsers.values());
 
   return (
     <Card>
@@ -106,18 +121,18 @@ export function EventDetail({ event }: Props) {
           </div>
           <div className="flex items-center space-x-2">
             <CalendarDays className="h-4 w-4" />
-            <span>{event.dates.length} proposed dates</span>
+            <span>{availableDates.length} proposed dates</span>
           </div>
           <div className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
-            <span>{event.responses.length} responses</span>
+            <span>{availableDates.length} responses</span>
           </div>
         </div>
 
         {showAvailabilityForm ? (
           <div className="border rounded-lg p-4">
             <AvailabilityForm
-              dates={event.dates}
+              dates={availableDates.map(date => ({ date: date.date, time: date.time! }))}
               onSubmit={handleSubmitAvailability}
               onCancel={() => setShowAvailabilityForm(false)}
             />
@@ -130,24 +145,21 @@ export function EventDetail({ event }: Props) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-32">Date</TableHead>
-                    {event.responses.map((response) => (
-                      <TableHead key={response.id}>{response.name}</TableHead>
+                    {uniqueUsersArray.length > 1 && uniqueUsersArray.map((user) => (
+                      <TableHead key={user.displayName}>{user.displayName}</TableHead>
                     ))}
+                   
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {event.dates.map((date) => (
-                    <TableRow key={date.toISOString()}>
-                      <TableCell className="font-medium">
-                        {date.toLocaleDateString()}
-                      </TableCell>
-                      {event.responses.map((response) => {
-                        const availability = response.availableDates.find(
-                          (a) => a.date.toDateString() === date.toDateString()
-                        );
+                  {availableDates.map((date) => (
+                    <TableRow key={date.id}>
+                      <TableCell className="font-medium">{date.date.toDateString()}</TableCell>
+                      {uniqueUsersArray.map((user) => {
+                        const response = date.responses.find((r) => r.displayName === user.displayName);
                         return (
-                          <TableCell key={response.id} className="text-center">
-                            {availability ? getStatusIcon(availability.status) : "-"}
+                          <TableCell key={user.displayName}>
+                            {response ? getStatusIcon(response.status) : "-"}
                           </TableCell>
                         );
                       })}

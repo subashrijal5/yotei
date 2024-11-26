@@ -1,15 +1,41 @@
 import { z } from "zod";
 
+
+export enum EventStatus {
+    YEA = "yea",
+    NO = "no",
+    MAYBE = "maybe",
+}
+export const eventResponseSchema = z.object({
+    id: z.number(),
+    eventId: z.number(),
+    displayName: z.string(),
+    availableDateId: z.number(),
+    status: z.nativeEnum(EventStatus),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    // availableDates: z.array(eventAvailableDateSchema),
+    
+});
+
+export type EventResponse = z.infer<typeof eventResponseSchema>;
+
+
+  
+
 export const eventAvailableDateSchema = z.object({
     id: z.number(),
     eventId: z.number(),
     date: z.date(),
     time: z.string().nullable(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
+    responses : z.array(eventResponseSchema),
+    // createdAt: z.date(),
+    // updatedAt: z.date(),
 });
 
 export type EventAvailableDate = z.infer<typeof eventAvailableDateSchema>;
+
+
 
 export const eventSchema = z.object({
     id: z.number(),
@@ -24,6 +50,8 @@ export const eventSchema = z.object({
 });
 
 export type Event = z.infer<typeof eventSchema>;
+
+
 
 
 export const eventRequestSchema = eventSchema.pick({
@@ -46,19 +74,4 @@ export const eventRequestSchema = eventSchema.pick({
 
 export type EventRequest = z.infer<typeof eventRequestSchema>;
 
-export enum EventStatus {
-    YEA = "yea",
-    NO = "no",
-    MAYBE = "maybe",
-}
 
-export const eventResponseSchema = z.object({
-    id: z.number(),
-    eventId: z.number(),
-    availableDateId: z.number(),
-    status: z.nativeEnum(EventStatus),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-});
-
-export type EventResponse = z.infer<typeof eventResponseSchema>;
