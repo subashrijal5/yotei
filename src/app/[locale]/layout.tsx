@@ -34,11 +34,12 @@ export default async function RootLayout({
     <html lang={awaitedParams.locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} `}
-      ><NextIntlClientProvider messages={messages}>
+      >
         <LiffProvider>
-          {children}
+          <NextIntlClientProvider messages={messages}>
+            {children}
+          </NextIntlClientProvider>
         </LiffProvider>
-        </NextIntlClientProvider>
       </body>
     </html>
   );
