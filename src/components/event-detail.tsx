@@ -90,7 +90,7 @@ export function EventDetail({ event }: Props) {
   };
 
   const uniqueUsers = new Map<string, { dateId: number; displayName: string }>();
-  console.log("🚀 ~ file: event-detail.tsx:93 ~ uniqueUsers:", uniqueUsers)
+  
   availableDates.forEach((date) => {
     date.responses.forEach((response) => {
       uniqueUsers.set(response.displayName, {
