@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { ja } from "date-fns/locale"
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { EventRequest, eventRequestSchema } from "@/schemas/event";
@@ -30,6 +30,7 @@ export function CreateEventForm() {
   const t = useTranslations('CreateEventForm');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useLiff();
+  const locale = useLocale();
   const form = useForm<EventRequest>({
     resolver: zodResolver(eventRequestSchema),
     defaultValues: {
@@ -205,6 +206,7 @@ export function CreateEventForm() {
                             selected={selectedDates.map((d) => d.date)}
                             onSelect={handleCalendarSelect}
                             disabled={(date) => date < new Date()}
+                            locale={locale === "en" ? undefined : ja}
                             className="select-none"
                             classNames={{
                               months: "flex flex-col sm:flex-row space-y-3 sm:space-x-4 sm:space-y-0",

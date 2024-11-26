@@ -4,6 +4,7 @@ import { tursoClient } from '@/lib/database';
 import { Event } from '@/schemas/event';
 import { getLocale, getTranslations } from 'next-intl/server';
 
+
 export default async function Home() {
   const locale = await getLocale();
   const t = await getTranslations('Homepage');
