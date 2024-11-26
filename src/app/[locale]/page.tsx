@@ -1,11 +1,8 @@
-
-
 import { CreateEventForm } from '@/components/create-event-form';
 import { EventList } from '@/components/event-list';
 import { tursoClient } from '@/lib/database';
 import { Event } from '@/schemas/event';
 import { getLocale, getTranslations } from 'next-intl/server';
-
 
 export default async function Home() {
   const locale = await getLocale();
@@ -28,7 +25,7 @@ export default async function Home() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-12 bg-white rounded-lg shadow-sm border p-6">
+      <div className="mb-12 bg-white dark:bg-gray-900 rounded-lg shadow-sm border dark:border-gray-800 p-6">
         <h2 className="text-xl font-semibold mb-6">{t('createEvent')}</h2>
         <CreateEventForm />
       </div>

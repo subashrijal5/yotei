@@ -29,7 +29,7 @@ import { useLiff } from "./LiffProvider";
 export function CreateEventForm() {
   const t = useTranslations('CreateEventForm');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const {profile}= useLiff();
+  const { profile } = useLiff();
   const form = useForm<EventRequest>({
     resolver: zodResolver(eventRequestSchema),
     defaultValues: {
@@ -110,7 +110,7 @@ export function CreateEventForm() {
         lineId: profile?.userId,
         displayName: profile?.displayName
       });
-      
+
       if (!response.success) {
         response.errors?.forEach((error) => {
           // if validation error, show error message to each field
@@ -230,7 +230,7 @@ export function CreateEventForm() {
                             }}
                           />
                         </div>
-                        
+
                         <div className="space-y-2 pt-2 border-t">
                           <div className="flex items-center justify-between">
                             <div className="text-sm font-medium">{t('selectedDates')}</div>
@@ -283,8 +283,8 @@ export function CreateEventForm() {
           </div>
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full max-w-md bg-[#00B900] hover:bg-[#009900]"
           disabled={isSubmitting}
         >
