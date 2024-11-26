@@ -3,10 +3,11 @@
 import { tursoClient } from "@/lib/database";
 import { Response } from "@/lib/type";
 import { EventStatus } from "@/schemas/event";
+import { firstOrCreateUser } from "../actions";
 
 type SaveAvailabilityRequest = {
   eventId: number;
-  userId: number;
+  lineId?: string;
   displayName: string;
   responses: {
     date: Date;
@@ -30,7 +31,7 @@ export async function saveAvailability(
   request: SaveAvailabilityRequest
 ): Promise<Response<SaveAvailabilityResponse>> {
   try {
-    const { eventId, userId, displayName, responses } = request;
+    const { eventId, lineId, displayName, responses } = request;
 
     // Get available dates for the event to match with availableDateId
     const datesQuery = await tursoClient().execute({
@@ -38,18 +39,8 @@ export async function saveAvailability(
       args: [eventId],
     });
 
-    // Delete existing responses for this user and event
-    await tursoClient().execute({
-      sql: `DELETE FROM responses WHERE eventId = ? AND userId = ?`,
-      args: [eventId, userId],
-    });
-
     // Update or insert user's display name
-    await tursoClient().execute({
-      sql: `INSERT INTO users (id, displayName) VALUES (?, ?)
-            ON CONFLICT(id) DO UPDATE SET displayName = ?`,
-      args: [userId, displayName, displayName],
-    });
+    const { id: userId } = await firstOrCreateUser(displayName, lineId);
 
     // Insert new responses
     await Promise.all(

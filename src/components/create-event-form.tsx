@@ -23,11 +23,13 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { X } from "lucide-react";
 import { createEvent } from "@/app/[locale]/events/actions";
 import { useToast } from "@/hooks/use-toast";
+import { useLiff } from "./LiffProvider";
 
 
 export function CreateEventForm() {
   const t = useTranslations('CreateEventForm');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {profile}= useLiff();
   const form = useForm<EventRequest>({
     resolver: zodResolver(eventRequestSchema),
     defaultValues: {
@@ -103,7 +105,11 @@ export function CreateEventForm() {
   const onSubmit = async (data: EventRequest) => {
     setIsSubmitting(true);
     try {
-      const response = await createEvent(data);
+      const response = await createEvent({
+        ...data,
+        lineId: profile?.userId,
+        displayName: profile?.displayName
+      });
       
       if (!response.success) {
         response.errors?.forEach((error) => {

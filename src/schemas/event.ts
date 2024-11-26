@@ -59,7 +59,7 @@ export const eventRequestSchema = eventSchema.pick({
     description: true,
     location: true,
     deadline: true,
-    userId: true
+  
 }).extend({
     title: z.string().min(2, {
         message: "Title must be at least 2 characters.",
@@ -70,6 +70,8 @@ export const eventRequestSchema = eventSchema.pick({
     })).min(1, {
         message: "Please select at least one date.",
     }),
+    lineId: z.string().optional(),
+    displayName: z.string().optional(),
 });
 
 export type EventRequest = z.infer<typeof eventRequestSchema>;

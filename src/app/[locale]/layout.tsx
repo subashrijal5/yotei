@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { LiffProvider } from "@/components/LiffProvider";
 import "../globals.css";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
+import { CalendarDays } from "lucide-react";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -30,16 +31,22 @@ export default async function RootLayout({
 }>) {
   const awaitedParams = await params;
   const messages = await getMessages(awaitedParams);
+  const t = await getTranslations('Homepage');
   return (
     <html lang={awaitedParams.locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} `}
-      >
-        <LiffProvider>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-          </NextIntlClientProvider>
-        </LiffProvider>
+      >    <main className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-center mb-8 space-x-2">
+            <CalendarDays className="h-8 w-8 text-[#00B900]" />
+            <h1 className="text-2xl font-bold">{t('title')}</h1>
+          </div>
+          <LiffProvider>
+            <NextIntlClientProvider messages={messages}>
+              {children}
+            </NextIntlClientProvider>
+          </LiffProvider>
+        </main>
       </body>
     </html>
   );

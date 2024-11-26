@@ -7,6 +7,7 @@ import { EventStatus } from "@/schemas/event";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLiff } from "./LiffProvider";
 
 
 type Props = {
@@ -17,7 +18,8 @@ type Props = {
 
 export function AvailabilityForm({ dates, onSubmit, onCancel }: Props) {
   const [responses, setResponses] = useState<Record<string, EventStatus>>({});
-  const [displayName, setDisplayName] = useState("");
+  const {profile}= useLiff();
+  const [displayName, setDisplayName] = useState(profile?.displayName || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { saveAvailability } from "@/app/[locale]/events/[id]/actions";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
+import { useLiff } from "./LiffProvider";
 
 type Props = {
   event: Event;
@@ -19,6 +20,8 @@ export function EventDetail({ event }: Props) {
   const t = useTranslations('EventDetail');
   const [showAvailabilityForm, setShowAvailabilityForm] = useState(false);
   const { toast } = useToast();
+  const {profile}= useLiff();
+  
 
   const availableDates = event.availableDates;
 
@@ -43,15 +46,12 @@ export function EventDetail({ event }: Props) {
     displayName: string
   ) => {
     try {
-      // TODO: Get actual userId from auth
-      const userId = 2;
-
       // Close form immediately for better UX
       setShowAvailabilityForm(false);
 
       const result = await saveAvailability({
         eventId: event.id,
-        userId,
+        lineId: profile?.userId,
         displayName,
         responses: availabilityResponses,
       });
@@ -90,6 +90,7 @@ export function EventDetail({ event }: Props) {
   };
 
   const uniqueUsers = new Map<string, { dateId: number; displayName: string }>();
+  console.log("🚀 ~ file: event-detail.tsx:93 ~ uniqueUsers:", uniqueUsers)
   availableDates.forEach((date) => {
     date.responses.forEach((response) => {
       uniqueUsers.set(response.displayName, {
@@ -144,7 +145,7 @@ export function EventDetail({ event }: Props) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-32">{t('date')}</TableHead>
-                    {uniqueUsersArray.length > 1 && uniqueUsersArray.map((user) => (
+                    {uniqueUsersArray.length > 0 && uniqueUsersArray.map((user) => (
                       <TableHead key={user.displayName}>{user.displayName}</TableHead>
                     ))}
                   </TableRow>
