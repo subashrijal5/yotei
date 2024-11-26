@@ -7,13 +7,14 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   events: Event[];
+  locale: string;
 };
 
-export function EventList({ events }: Props) {
+export function EventList({ events, locale }: Props) {
   const router = useRouter();
 
   const handleEventClick = (eventId: number) => {
-    router.push(`/events/${eventId}`);
+    router.push(`/${locale}/events/${eventId}`);
   };
 
   return (

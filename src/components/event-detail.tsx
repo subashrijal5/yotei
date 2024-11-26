@@ -5,32 +5,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Share2, Users, Check, X, CircleHelp } from "lucide-react";
 import { AvailabilityForm } from "@/components/availability-form";
-import { Event,  EventStatus } from "@/schemas/event";
+import { Event, EventStatus } from "@/schemas/event";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { saveAvailability } from "@/app/[locale]/events/[id]/actions";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "next-intl";
 
 type Props = {
   event: Event;
 };
 
 export function EventDetail({ event }: Props) {
+  const t = useTranslations('EventDetail');
   const [showAvailabilityForm, setShowAvailabilityForm] = useState(false);
   const { toast } = useToast();
 
-   const availableDates = event.availableDates;
+  const availableDates = event.availableDates;
 
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       toast({
-        title: "Link copied!",
-        description: "Share this link with your friends to get their availability.",
+        title: t('linkCopied'),
+        description: t('linkCopiedDesc'),
       });
     } catch (error) {
       toast({
-        title: "Failed to copy link",
-        description: "Please try again or copy the URL manually.",
+        title: t('copyError'),
+        description: t('copyErrorDesc'),
         variant: "destructive",
       });
     }
@@ -44,7 +46,6 @@ export function EventDetail({ event }: Props) {
       // TODO: Get actual userId from auth
       const userId = 2;
 
-    
       // Close form immediately for better UX
       setShowAvailabilityForm(false);
 
@@ -57,13 +58,12 @@ export function EventDetail({ event }: Props) {
 
       if (result.success) {
         toast({
-          title: "Availability saved!",
-          description: "Your response has been recorded.",
+          title: t('availabilitySaved'),
+          description: t('availabilitySavedDesc'),
         });
       } else {
-
         toast({
-          title: "Failed to save availability",
+          title: t('saveError'),
           description: result.message,
           variant: "destructive",
         });
@@ -72,7 +72,7 @@ export function EventDetail({ event }: Props) {
       console.error("Error submitting availability:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: t('unexpectedError'),
         variant: "destructive",
       });
     }
@@ -88,7 +88,6 @@ export function EventDetail({ event }: Props) {
         return <CircleHelp className="h-4 w-4 text-yellow-500" />;
     }
   };
-
 
   const uniqueUsers = new Map<string, { dateId: number; displayName: string }>();
   availableDates.forEach((date) => {
@@ -121,11 +120,11 @@ export function EventDetail({ event }: Props) {
           </div>
           <div className="flex items-center space-x-2">
             <CalendarDays className="h-4 w-4" />
-            <span>{availableDates.length} proposed dates</span>
+            <span>{t('proposedDates', { count: availableDates.length })}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
-            <span>{availableDates.length} responses</span>
+            <span>{t('responses', { count: availableDates.length })}</span>
           </div>
         </div>
 
@@ -140,15 +139,14 @@ export function EventDetail({ event }: Props) {
         ) : (
           <>
             <div className="border rounded-lg p-4 overflow-x-auto">
-              <h3 className="font-semibold mb-4">Participant Availability</h3>
+              <h3 className="font-semibold mb-4">{t('participantAvailability')}</h3>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-32">Date</TableHead>
+                    <TableHead className="w-32">{t('date')}</TableHead>
                     {uniqueUsersArray.length > 1 && uniqueUsersArray.map((user) => (
                       <TableHead key={user.displayName}>{user.displayName}</TableHead>
                     ))}
-                   
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -173,7 +171,7 @@ export function EventDetail({ event }: Props) {
               onClick={() => setShowAvailabilityForm(true)} 
               className="w-full bg-[#00B900] hover:bg-[#009900]"
             >
-              Add Your Availability
+              {t('addAvailability')}
             </Button>
           </>
         )}

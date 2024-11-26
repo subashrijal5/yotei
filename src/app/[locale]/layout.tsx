@@ -26,17 +26,19 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }>) {
-  const messages = await getMessages(params);
+  const awaitedParams = await params;
+  const messages = await getMessages(awaitedParams);
   return (
-    <html lang={params.locale}>
+    <html lang={awaitedParams.locale}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+        className={`${geistSans.variable} ${geistMono.variable} `}
+      ><NextIntlClientProvider messages={messages}>
         <LiffProvider>
-          <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+          {children}
         </LiffProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

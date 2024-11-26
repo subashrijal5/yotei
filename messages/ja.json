@@ -30,5 +30,20 @@
         "createEvent": "イベントを作成",
         "success": "イベントが正常に作成されました！",
         "error": "エラーが発生しました。もう一度お試しください。"
+    },
+    "EventDetail": {
+        "linkCopied": "リンクをコピーしました！",
+        "linkCopiedDesc": "このリンクを友達と共有して、参加可能な日程を確認しましょう。",
+        "copyError": "リンクのコピーに失敗しました",
+        "copyErrorDesc": "もう一度お試しいただくか、URLを手動でコピーしてください。",
+        "availabilitySaved": "予定を保存しました！",
+        "availabilitySavedDesc": "回答が記録されました。",
+        "saveError": "予定の保存に失敗しました",
+        "unexpectedError": "予期せぬエラーが発生しました。もう一度お試しください。",
+        "proposedDates": "候補日 {count}件",
+        "responses": "回答 {count}件",
+        "participantAvailability": "参加者の予定",
+        "date": "日付",
+        "addAvailability": "予定を追加"
     }
 }

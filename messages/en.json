@@ -30,5 +30,20 @@
         "createEvent": "Create Event",
         "success": "Event created successfully!",
         "error": "Something went wrong. Please try again."
+    },
+    "EventDetail": {
+        "linkCopied": "Link copied!",
+        "linkCopiedDesc": "Share this link with your friends to get their availability.",
+        "copyError": "Failed to copy link",
+        "copyErrorDesc": "Please try again or copy the URL manually.",
+        "availabilitySaved": "Availability saved!",
+        "availabilitySavedDesc": "Your response has been recorded.",
+        "saveError": "Failed to save availability",
+        "unexpectedError": "An unexpected error occurred. Please try again.",
+        "proposedDates": "{count} proposed dates",
+        "responses": "{count} responses",
+        "participantAvailability": "Participant Availability",
+        "date": "Date",
+        "addAvailability": "Add Your Availability"
     }
 }

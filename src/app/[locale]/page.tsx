@@ -5,10 +5,11 @@ import { EventList } from '@/components/event-list';
 import { tursoClient } from '@/lib/database';
 import { Event } from '@/schemas/event';
 import { CalendarDays } from 'lucide-react';
-import {getTranslations} from 'next-intl/server';
+import {getLocale, getTranslations} from 'next-intl/server';
 
 
 export default async function Home() {
+  const locale = await getLocale();
   const t = await getTranslations('Homepage');
   const query = await tursoClient().execute({
     sql: `SELECT * FROM events ORDER BY createdAt DESC`,
@@ -41,7 +42,7 @@ export default async function Home() {
         
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">{t('yourEvents')}</h2>
-          <EventList events={events} />
+          <EventList events={events} locale={locale} />
         </div>
       </div>
     </main>
