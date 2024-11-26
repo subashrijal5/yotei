@@ -1,1 +1,34 @@
-{}
+{
+    "Homepage": {
+        "title": "イベントスケジューラー",
+        "description": "ホームページ",
+        "button": "ホームページ",
+        "success": "ホームページに移動しました",
+        "error": "ホームページへの移動に失敗しました",
+        "createEvent": "イベントを作成",
+        "yourEvents": "あなたのイベント"
+    },
+    "Events": {
+        "title": "イベント",
+        "description": "イベント",
+        "button": "イベント",
+        "success": "イベントに移動しました",
+        "error": "イベントへの移動に失敗しました"
+    },
+    "CreateEventForm": {
+        "title": "タイトル",
+        "titlePlaceholder": "イベントタイトル",
+        "description": "説明（任意）",
+        "descriptionPlaceholder": "イベントの詳細を追加...",
+        "location": "場所（任意）",
+        "locationPlaceholder": "イベント場所",
+        "datesAndTimes": "日時を選択",
+        "selectedDates": "選択された日付",
+        "datesSelected": "{count}件の日付が選択されました",
+        "noDatesSelected": "日付が選択されていません",
+        "creating": "作成中...",
+        "createEvent": "イベントを作成",
+        "success": "イベントが正常に作成されました！",
+        "error": "エラーが発生しました。もう一度お試しください。"
+    }
+}

@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
+import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { EventRequest, eventRequestSchema } from "@/schemas/event";
@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 export function CreateEventForm() {
+  const t = useTranslations('CreateEventForm');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<EventRequest>({
     resolver: zodResolver(eventRequestSchema),
@@ -102,22 +103,18 @@ export function CreateEventForm() {
   const onSubmit = async (data: EventRequest) => {
     setIsSubmitting(true);
     try {
-      
-
       const response = await createEvent(data);
       
       if (!response.success) {
         response.errors?.forEach((error) => {
           // if validation error, show error message to each field
-          
-
         });
         return;
       }
 
       toast({
         title: "Success",
-        description: "Event created successfully!",
+        description: t('success'),
       });
 
       // Reset form
@@ -126,7 +123,7 @@ export function CreateEventForm() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: t('error'),
         variant: "destructive",
       });
     } finally {
@@ -144,9 +141,9 @@ export function CreateEventForm() {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t('title')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Event title" {...field} className="max-w-md" />
+                    <Input placeholder={t('titlePlaceholder')} {...field} className="max-w-md" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -158,10 +155,10 @@ export function CreateEventForm() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormLabel>{t('description')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Add event details..."
+                      placeholder={t('descriptionPlaceholder')}
                       className="max-w-md h-[120px]"
                       {...field}
                     />
@@ -176,9 +173,9 @@ export function CreateEventForm() {
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location (Optional)</FormLabel>
+                  <FormLabel>{t('location')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Event location" {...field} className="max-w-md" />
+                    <Input placeholder={t('locationPlaceholder')} {...field} className="max-w-md" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -192,7 +189,7 @@ export function CreateEventForm() {
               name="dates"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Select Dates and Times</FormLabel>
+                  <FormLabel>{t('datesAndTimes')}</FormLabel>
                   <FormControl>
                     <div className="rounded-lg border bg-card">
                       <div className="p-3">
@@ -230,15 +227,15 @@ export function CreateEventForm() {
                         
                         <div className="space-y-2 pt-2 border-t">
                           <div className="flex items-center justify-between">
-                            <div className="text-sm font-medium">Selected Dates</div>
+                            <div className="text-sm font-medium">{t('selectedDates')}</div>
                             <div className="text-xs text-muted-foreground">
-                              {selectedDates.length} {selectedDates.length === 1 ? 'date' : 'dates'} selected
+                              {t('datesSelected', { count: selectedDates.length })}
                             </div>
                           </div>
                           <div className="relative">
                             {selectedDates.length === 0 ? (
                               <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-2">
-                                No dates selected
+                                {t('noDatesSelected')}
                               </div>
                             ) : (
                               <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
@@ -285,7 +282,7 @@ export function CreateEventForm() {
           className="w-full max-w-md bg-[#00B900] hover:bg-[#009900]"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Creating..." : "Create Event"}
+          {isSubmitting ? t('creating') : t('createEvent')}
         </Button>
       </form>
     </Form>

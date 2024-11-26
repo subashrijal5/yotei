@@ -1,1 +1,34 @@
-{}
+{
+    "Homepage": {
+        "title": "Event Scheduler",
+        "description": "Homepage",
+        "button": "Homepage",
+        "success": "Moved to Homepage",
+        "error": "Failed to move to Homepage",
+        "createEvent": "Create Event",
+        "yourEvents": "Your Events"
+    },
+    "Events": {
+        "title": "Events",
+        "description": "Events",
+        "button": "Events",
+        "success": "Moved to Events",
+        "error": "Failed to move to Events"
+    },
+    "CreateEventForm": {
+        "title": "Title",
+        "titlePlaceholder": "Event title",
+        "description": "Description (Optional)",
+        "descriptionPlaceholder": "Add event details...",
+        "location": "Location (Optional)",
+        "locationPlaceholder": "Event location",
+        "datesAndTimes": "Select Dates and Times",
+        "selectedDates": "Selected Dates",
+        "datesSelected": "{count, plural, =1 {# date} other {# dates}} selected",
+        "noDatesSelected": "No dates selected",
+        "creating": "Creating...",
+        "createEvent": "Create Event",
+        "success": "Event created successfully!",
+        "error": "Something went wrong. Please try again."
+    }
+}

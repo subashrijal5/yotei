@@ -5,8 +5,11 @@ import { EventList } from '@/components/event-list';
 import { tursoClient } from '@/lib/database';
 import { Event } from '@/schemas/event';
 import { CalendarDays } from 'lucide-react';
+import {getTranslations} from 'next-intl/server';
+
 
 export default async function Home() {
+  const t = await getTranslations('Homepage');
   const query = await tursoClient().execute({
     sql: `SELECT * FROM events ORDER BY createdAt DESC`,
     args: [],
@@ -27,17 +30,17 @@ export default async function Home() {
     <main className="container mx-auto px-4 py-6">
       <div className="flex items-center justify-center mb-8 space-x-2">
         <CalendarDays className="h-8 w-8 text-[#00B900]" />
-        <h1 className="text-2xl font-bold">Line Event Scheduler</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
       </div>
       
       <div className="max-w-5xl mx-auto">
         <div className="mb-12 bg-white rounded-lg shadow-sm border p-6">
-          <h2 className="text-xl font-semibold mb-6">Create New Event</h2>
+          <h2 className="text-xl font-semibold mb-6">{t('createEvent')}</h2>
           <CreateEventForm />
         </div>
         
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Your Events</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('yourEvents')}</h2>
           <EventList events={events} />
         </div>
       </div>
