@@ -47,7 +47,7 @@ export async function saveAvailability(
     // Update or insert user's display name
     await tursoClient().execute({
       sql: `INSERT INTO users (id, displayName) VALUES (?, ?)
-            ON CONFLICT(displayName) DO UPDATE SET userId = ?`,
+            ON CONFLICT(id) DO UPDATE SET displayName = ?`,
       args: [userId, displayName, displayName],
     });
 
